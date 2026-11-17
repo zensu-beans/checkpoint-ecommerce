@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Checkpoint Shoes</title>
+    <meta name="description" content="Marikina-made leather shoes. Shop the collection or book a Fit-Sure at-home fitting." />
+    <meta name="theme-color" content="#2a2723" />
+    <script>
+      try {
+        var s = localStorage.getItem("cp-theme");
+        if (s) document.documentElement.dataset.theme = s;
+      } catch (e) {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lora:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute">
+      <symbol id="shoe" viewBox="0 0 120 64">
+        <path
+          d="M10 49C7 41 7 33 10 26c4-2 9 0 14-2l9-11c3-2 7-1 9 1l7 9c8 3 16 3 25 7 11 5 24 6 27 18l1 1z"
+          fill="var(--u,#e9e9ec)"
+          stroke="var(--k,#c9c9cf)"
+          stroke-width="1.2"
+        />
+        <path
+          d="M6 49h109c2 6 0 10-7 10H16C9 59 5 56 6 49z"
+          fill="var(--s,#fff)"
+          stroke="#bfc3cc"
+        />
+        <path d="M7 55h107" stroke="#d3d7e0" />
+        <path
+          d="M47 20l6-4M53 24l6-4M59 27l6-4M65 30l5-3"
+          stroke="var(--k,#9a9aa5)"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+        <path
+          d="M28 43c14-1 28-8 44-3"
+          stroke="var(--k,#b5b9c4)"
+          stroke-width="3.5"
+          fill="none"
+          stroke-linecap="round"
+        />
+        <path
+          d="M99 38c3 3 5 6 6 11M12 29c6 2 8 9 8 19"
+          stroke="var(--k,#c4c8d2)"
+          stroke-width="1.2"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="hightop" viewBox="0 0 120 64">
+        <path
+          d="M10 49C6 38 6 22 9 8l17 1 7 5 9-1 7 9c8 3 16 3 25 7 11 5 24 6 27 18l1 2z"
+          fill="var(--u,#e9e9ec)"
+          stroke="var(--k,#c9c9cf)"
+          stroke-width="1.2"
+        />
+        <path
+          d="M6 49h109c2 6 0 10-7 10H16C9 59 5 56 6 49z"
+          fill="var(--s,#fff)"
+          stroke="#bfc3cc"
+        />
+        <path d="M7 55h107" stroke="#d3d7e0" />
+        <path
+          d="M12 18l16 1M47 20l6-4M53 24l6-4M59 27l6-4M65 30l5-3"
+          stroke="var(--k,#9a9aa5)"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+        <path
+          d="M28 43c14-1 28-8 44-3"
+          stroke="var(--k,#b5b9c4)"
+          stroke-width="3.5"
+          fill="none"
+          stroke-linecap="round"
+        />
+        <path
+          d="M99 38c3 3 5 6 6 11M12 29c6 2 8 9 8 19"
+          stroke="var(--k,#c4c8d2)"
+          stroke-width="1.2"
+          fill="none"
+        />
+      </symbol>
+      <symbol id="sandal" viewBox="0 0 120 64">
+        <path
+          d="M6 46c0-4 4-6 12-6h70c16 0 28 3 28 8v4c0 6-6 9-14 9H16C9 61 6 56 6 50z"
+          fill="var(--s,#fff)"
+          stroke="#bfc3cc"
+        />
+        <path d="M6 51h110" stroke="#d3d7e0" />
+        <path
+          d="M44 41C46 24 72 24 76 41M16 41C14 28 22 20 36 22"
+          stroke="var(--u,#c9a77a)"
+          stroke-width="8"
+          fill="none"
+          stroke-linecap="round"
+        />
+        <rect
+          x="58"
+          y="26"
+          width="6"
+          height="7"
+          rx="1"
+          fill="#fff"
+          stroke="#999"
+        />
+      </symbol>
+      <symbol id="i-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7" />
+        <path d="M20 20l-4-4" />
+      </symbol>
+      <symbol id="i-user" viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+      </symbol>
+      <symbol id="i-bag" viewBox="0 0 24 24">
+        <path d="M5 8h14l-1 12H6z" />
+        <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+      </symbol>
+      <symbol id="i-shoe" viewBox="0 0 24 24">
+        <path d="M2 17v-4l5-1 3-5 3 3 5 2c2 .6 4 1.5 4 3v2z" />
+        <path d="M2 20h20" />
+      </symbol>
+      <symbol id="i-cal" viewBox="0 0 24 24">
+        <rect x="3" y="5" width="18" height="16" rx="2" />
+        <path d="M3 10h18M8 3v4M16 3v4" />
+      </symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24">
+        <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />
+        <path d="M8.5 12l2.5 2.5 4.5-5" />
+      </symbol>
+      <symbol id="i-truck" viewBox="0 0 24 24">
+        <path d="M2 6h11v10H2zM13 9h4l3 3v4h-7" />
+        <circle cx="7" cy="18" r="2" />
+        <circle cx="17" cy="18" r="2" />
+      </symbol>
+      <symbol id="i-home" viewBox="0 0 24 24">
+        <path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6" />
+      </symbol>
+      <symbol id="i-rule" viewBox="0 0 24 24">
+        <path d="M3 15L15 3l6 6L9 21z" />
+        <path d="M7 11l2 2M10 8l2 2M13 5l2 2" />
+      </symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24">
+        <path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" />
+      </symbol>
+      <symbol id="i-drop" viewBox="0 0 24 24">
+        <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" />
+      </symbol>
+      <symbol id="i-wrench" viewBox="0 0 24 24">
+        <path
+          d="M15 4a5 5 0 0 0-4 7l-7 7 2 2 7-7a5 5 0 0 0 7-4l-3 3-3-1-1-3z"
+        />
+      </symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="4" />
+        <path
+          d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"
+        />
+      </symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24">
+        <path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z" />
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </symbol>
+      <symbol id="i-chev" viewBox="0 0 24 24">
+        <path d="M9 5l7 7-7 7" />
+      </symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24">
+        <path
+          d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"
+        />
+      </symbol>
+    </svg>
+    <div class="top">
+      <div class="wrap">
+        <span class="promo">At-home fitting &amp; delivery — ₱150 per appointment</span>
+        <span class="tl"
+          ><a href="#about">Store Locator</a><a href="#about">Track Order</a
+          ><a href="#faq">Help &amp; FAQs</a></span
+        >
+      </div>
+    </div>
+    <header>
+      <div class="wrap">
+        <a class="logo" href="#home" aria-label="Checkpoint Marikina"
+          ><img
+            class="logo-img logo-l"
+            alt="Checkpoint Marikina Est. MMXI"
+            src="assets/images/logo-light.png" /><img
+            class="logo-img logo-d"
+            alt="Checkpoint Marikina Est. MMXI"
+            src="assets/images/logo-dark.png"
+        /></a>
+        <nav>
+          <a href="#home">Home</a><a href="#shop">Shop</a
+          ><a href="#fit">Fit-Sure Service</a><a href="#about">About</a>
+        </nav>
+        <div class="icons">
+          <button class="ib" id="bt" aria-label="Switch theme"></button
+          ><button class="ib" id="bs" aria-label="Search" aria-haspopup="dialog">
+            <svg class="ic"><use href="#i-search" /></svg></button
+          ><button class="ib" id="ba" aria-label="Account" aria-haspopup="true" aria-expanded="false">
+            <svg class="ic"><use href="#i-user" /></svg></button
+          ><button class="ib" id="bc" aria-label="Open cart" aria-haspopup="dialog">
+            <svg class="ic"><use href="#i-bag" /></svg
+            ><span class="bd" id="cart" hidden>0</span>
+          </button>
+        </div>
+      </div>
+      <div class="pop" id="ap" role="dialog" aria-label="Account" hidden>
+        <div id="aform">
+          <b>Welcome to Checkpoint</b>
+          <a class="go" href="#login">Sign in</a>
+          <a class="go alt" href="#login?mode=signup">Create an account</a>
+        </div>
+        <div id="awel" hidden>
+          <b>Hello, <span id="aname"></span></b>
+          <a class="go" href="#account">My orders &amp; wishlist</a>
+          <button class="go" id="aout">Sign out</button>
+        </div>
+      </div>
+    </header>
+    <div id="scrim" hidden></div>
+
+    <aside class="drawer" id="cd" role="dialog" aria-modal="true" aria-labelledby="cdt" hidden>
+      <div class="dh">
+        <b id="cdt">Your cart <span class="cn" id="cn"></span></b>
+        <button class="x" id="cx" aria-label="Close cart">×</button>
+      </div>
+      <div id="clist"></div>
+      <div class="df">
+        <div class="l tot">Subtotal <b id="ctot">₱0</b></div>
+        <button class="go" id="chk">Checkout</button>
+      </div>
+    </aside>
+
+    <!-- Floating search -->
+    <div class="sov" id="sp" role="dialog" aria-modal="true" aria-label="Search" hidden>
+      <div class="sbox">
+        <form class="sfield" id="sf" role="search" autocomplete="off">
+          <svg class="ic" aria-hidden="true"><use href="#i-search" /></svg>
+          <input
+            id="q"
+            type="search"
+            placeholder="Search products, categories…"
+            aria-label="Search products and categories"
+            enterkeyhint="search"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+          />
+          <button type="button" class="sx" id="sclose" aria-label="Close search">
+            <svg class="ic" aria-hidden="true"><use href="#i-close" /></svg>
+          </button>
+        </form>
+        <div class="sres" id="sres" aria-live="polite"></div>
+        <p class="shint">Press <kbd>Enter</kbd> to search · <kbd>Esc</kbd> to close</p>
+        <div class="sug" id="sug"></div>
+      </div>
+    </div>
+
+    <!-- Product preview (quick view) -->
+    <div class="qv" id="qv" hidden>
+      <div class="qvc" id="qvc" role="dialog" aria-modal="true" aria-labelledby="qvt" tabindex="-1">
+        <button class="qx" id="qx" aria-label="Close preview">
+          <svg class="ic" aria-hidden="true"><use href="#i-close" /></svg>
+        </button>
+        <div class="qbody" id="qbody"></div>
+      </div>
+    </div>
+
+    <!-- ============ HOME ============ -->
+    <main id="home">
+      <section class="hero">
+        <div class="txt">
+          <small>CHECKPOINT SHOES</small>
+          <h1>Find Your<br />Perfect Fit</h1>
+          <p>
+            Shop the latest styles and book an at-home fitting with our Fit-Sure
+            Service. Comfort, style, and convenience — all in one.
+          </p>
+          <div class="cta">
+            <a class="btn blue" href="#shop">Shop the collection</a>
+            <a class="lnk" href="#fit"
+              >Discover Fit-Sure Service <span aria-hidden="true">→</span></a
+            >
+          </div>
+          <ul class="facts">
+            <li><b>MMXI</b><span>Established in Marikina</span></li>
+            <li><b>₱150</b><span>Per at-home fitting</span></li>
+            <li><b>Fit-Sure</b><span>Try before you decide</span></li>
+          </ul>
+        </div>
+        <div
+          class="art"
+          role="img"
+          aria-label="Checkpoint leather slip-on shoes in brown, black, tan, navy, plum and green"
+        >
+          <img class="photo" alt="" src="assets/images/hero-home.jpg" />
+        </div>
+      </section>
+      <div class="wrap">
+        <div class="perks">
+          <div class="perk">
+            <i><svg class="ic"><use href="#i-shoe" /></svg></i>
+            <div>
+              <b>Shop latest styles</b
+              ><span>Top brands and trending collections.</span>
+            </div>
+          </div>
+          <div class="perk">
+            <i><svg class="ic"><use href="#i-cal" /></svg></i>
+            <div>
+              <b>Book a fitting</b
+              ><span>We come to you — ₱150 per appointment.</span>
+            </div>
+          </div>
+          <div class="perk">
+            <i><svg class="ic"><use href="#i-shield" /></svg></i>
+            <div>
+              <b>Expert assistance</b
+              ><span>Get personalized fit recommendations.</span>
+            </div>
+          </div>
+          <div class="perk">
+            <i><svg class="ic"><use href="#i-truck" /></svg></i>
+            <div>
+              <b>Secure and fast delivery</b
+              ><span>Your new pair, right to your door.</span>
+            </div>
+          </div>
+        </div>
+        <section class="sec">
+          <div class="sh">
+            <div class="shh">
+              <small class="eyebrow">Just in</small>
+              <h2>New Arrivals</h2>
+            </div>
+            <a class="btn blue" href="#shop" data-all>View all</a>
+          </div>
+          <div class="prods" id="prods-home"></div>
+        </section>
+        <section class="sec">
+          <div class="sh">
+            <div class="shh">
+              <small class="eyebrow">Browse</small>
+              <h2>Shop by Category</h2>
+            </div>
+          </div>
+          <div class="cats" id="cats"></div>
+        </section>
+      </div>
+      <section class="band">
+        <div class="img"><img src="assets/images/hero-fit.jpg" alt="" /></div>
+        <div class="txt">
+          <h2>Your Perfect Fit,<br />At Your Doorstep.</h2>
+          <p>
+            Skip the hassle. Book an at-home fitting and let us bring the shoes
+            to you.
+          </p>
+          <ul>
+            <li>Delivery and at-home fitting for ₱150 per appointment</li>
+            <li>Try multiple sizes or styles</li>
+            <li>Schedule at your convenience</li>
+          </ul>
+          <a class="btn blue" href="#fit">Book a fitting</a>
+        </div>
+      </section>
+      <section class="news">
+        <div class="wrap">
+          <div>
+            <h2>Stay in the Loop</h2>
+            <p>
+              Sign up for early access to new arrivals, exclusive offers, and
+              style inspiration.
+            </p>
+          </div>
+          <div class="nf">
+            <input
+              id="ne"
+              type="email"
+              placeholder="Enter your email"
+              aria-label="Email"
+            /><button class="btn blue" id="ns">Subscribe</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ SHOP ============ -->
+    <main id="shop" hidden>
+      <section class="pagehead">
+        <div class="wrap">
+          <div class="crumbs">
+            <a href="#home">Home</a><span aria-hidden="true">/</span
+            ><span>Shop</span>
+          </div>
+          <h1 id="ptitle">All styles</h1>
+          <p>
+            Marikina-made styles for work and everyday wear. Add a pair to your
+            cart, or book a Fit-Sure fitting and try it at home first.
+          </p>
+        </div>
+      </section>
+      <div class="wrap">
+        <div class="toolbar">
+          <div class="ftabs" id="ftabs"></div>
+          <label class="sortl"
+            >Sort by
+            <select id="sort">
+              <option value="0">Featured</option>
+              <option value="1">Price: low to high</option>
+              <option value="2">Price: high to low</option>
+            </select></label
+          >
+        </div>
+        <p class="pcount" id="pcount"></p>
+        <div class="prods" id="prods"></div>
+        <aside class="shopnote">
+          <div>
+            <b>Not sure about your size?</b>
+            <span
+              >Book a Fit-Sure fitting and try multiple sizes or styles at home
+              — ₱150 per appointment.</span
+            >
+          </div>
+          <a class="btn blue" href="#fit">Book a fitting</a>
+        </aside>
+      </div>
+    </main>
+
+    <!-- ============ CHECKOUT ============ -->
+    <main id="checkout" hidden><div class="wrap" id="ckw"></div></main>
+
+    <!-- ============ FIT-SURE ============ -->
+    <main id="fit" hidden>
+      <section class="hero fh">
+        <div class="txt">
+          <small>FIT-SURE SERVICE</small>
+          <h1>Book Your<br />At-Home Fitting</h1>
+          <p>
+            We’ll bring the shoes, you bring the comfort. Select your preferred
+            date, time, and location and we’ll handle the rest.
+          </p>
+          <div class="cta">
+            <a class="btn blue" href="#book">Book now</a>
+            <a class="lnk" href="#faq"
+              >Read the FAQs <span aria-hidden="true">→</span></a
+            >
+          </div>
+          <ul class="facts">
+            <li><b>₱150</b><span>Per appointment</span></li>
+            <li><b>2 hrs</b><span>Advance call from our team</span></li>
+            <li><b>Multiple</b><span>Sizes &amp; styles to try</span></li>
+          </ul>
+        </div>
+        <div
+          class="art"
+          role="img"
+          aria-label="Row of Checkpoint lace-up shoes in black, brown, tan, green, red and blue"
+        >
+          <img src="assets/images/hero-fit.jpg" alt="" />
+        </div>
+      </section>
+      <div class="wrap">
+        <section class="how" aria-label="How Fit-Sure works">
+          <div class="hs">
+            <i class="hs-ic"><svg class="ic"><use href="#i-cal" /></svg></i>
+            <span class="n">Step 01</span>
+            <h3>Pick a date &amp; time</h3>
+            <p>Choose a slot that suits you and tell us where to meet.</p>
+          </div>
+          <div class="hs">
+            <i class="hs-ic"><svg class="ic"><use href="#i-truck" /></svg></i>
+            <span class="n">Step 02</span>
+            <h3>We bring the shoes</h3>
+            <p>Try multiple sizes or styles, with personalized fit advice.</p>
+          </div>
+          <div class="hs">
+            <i class="hs-ic"><svg class="ic"><use href="#i-home" /></svg></i>
+            <span class="n">Step 03</span>
+            <h3>Decide in comfort</h3>
+            <p>Walk around at home and keep the pair that fits right.</p>
+          </div>
+        </section>
+        <div id="book">
+          <div class="bkhead">
+            <small class="eyebrow">Book online</small>
+            <h2>Request your fitting</h2>
+            <p>Four short steps. Our team confirms your appointment, usually within the day.</p>
+          </div>
+          <div id="fitapp"></div>
+        </div>
+        <section class="faq" id="faq">
+          <div class="faq-in">
+            <div class="faq-intro">
+              <small class="eyebrow">Good to know</small>
+              <h2>Help &amp; FAQs</h2>
+              <p>Quick answers about at-home fittings, pricing and extra services.</p>
+            </div>
+            <div class="faq-list">
+          <details>
+            <summary>How much does a fitting cost?</summary>
+            <p id="faq-fee">
+              Delivery and the at-home fitting are ₱150 per appointment.
+            </p>
+          </details>
+          <details>
+            <summary>Can I try more than one size or style?</summary>
+            <p>
+              Yes. Try multiple sizes or styles during your appointment and keep
+              the pair that fits best.
+            </p>
+          </details>
+          <details>
+            <summary>When will your team contact me?</summary>
+            <p>
+              Our team will contact you 2 hours before your scheduled time.
+            </p>
+          </details>
+          <details>
+            <summary>Which cities can I book in?</summary>
+            <p id="faq-cities">
+              The booking form currently lists Quezon City, Makati, Pasig and
+              Taguig.
+            </p>
+          </details>
+          <details>
+            <summary>What extra services are available?</summary>
+            <p>
+              Home shoe cleaning (₱350 per pair, free for the first 20
+              bookings), shoe polishing (₱150 per pair), repair pickup (₱150
+              per transaction, repair fees are separate) and other services at
+              ₱100–₱300 depending on service, materials and labor.
+            </p>
+          </details>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ============ ABOUT ============ -->
+    <!-- ============ LOGIN / SIGN UP ============ -->
+    <main id="login" hidden>
+      <div class="wrap lg">
+        <aside class="lg-brand">
+          <img src="assets/images/logo-dark.png" alt="Checkpoint, Marikina" />
+          <h2>Crafted in Marikina. <em>Made to walk with you.</em></h2>
+          <p>Create an account to track your orders, save your wishlist and check out faster.</p>
+        </aside>
+        <section class="lg-card" aria-labelledby="lgt">
+          <div class="lg-tabs" role="tablist">
+            <button type="button" role="tab" id="tab-in" aria-selected="true" data-mode="signin">Sign in</button>
+            <button type="button" role="tab" id="tab-up" aria-selected="false" data-mode="signup">Create account</button>
+          </div>
+          <h1 id="lgt">Welcome back</h1>
+          <p class="lg-sub" id="lgs">Sign in to see your orders and wishlist.</p>
+          <form id="lgf" novalidate>
+            <label class="lg-f" id="lgnw" hidden>Full name
+              <input id="lgn" type="text" autocomplete="name" placeholder="Juan dela Cruz" />
+            </label>
+            <label class="lg-f">Email
+              <input id="lge" type="email" autocomplete="email" placeholder="you@example.com" required />
+            </label>
+            <label class="lg-f">Password
+              <span class="lg-pw">
+                <input id="lgp" type="password" autocomplete="current-password" placeholder="At least 6 characters" required />
+                <button type="button" id="lgv" aria-label="Show password" aria-pressed="false">Show</button>
+              </span>
+            </label>
+            <label class="lg-f" id="lgcw" hidden>Confirm password
+              <input id="lgc" type="password" autocomplete="new-password" placeholder="Repeat password" />
+            </label>
+            <p class="lg-err" id="lgerr" role="alert" aria-live="polite"></p>
+            <button class="go" id="lgsub">Sign in</button>
+            <button type="button" class="lnk" id="lgfg">Forgot your password?</button>
+          </form>
+          <p class="lg-foot"><a href="#shop">← Continue shopping</a></p>
+        </section>
+      </div>
+    </main>
+    <main id="account" hidden>
+      <section class="ac-hero">
+        <div class="wrap ac-hd">
+          <span class="ac-av" id="aav" aria-hidden="true">C</span>
+          <div class="ac-who">
+            <p class="ac-eyebrow">My account</p>
+            <h1 id="ahname">Welcome</h1>
+            <p id="ahello"></p>
+          </div>
+          <dl class="ac-stats">
+            <div><dt>Orders</dt><dd id="ast-o">0</dd></div>
+            <div><dt>Wishlist</dt><dd id="ast-w">0</dd></div>
+            <div><dt>In transit</dt><dd id="ast-t">0</dd></div>
+          </dl>
+        </div>
+      </section>
+      <div class="wrap acc">
+        <div class="ac-main">
+          <section class="ac-sec">
+            <div class="ac-sh"><h2>My orders</h2><a href="#shop" class="lnk">Keep shopping →</a></div>
+            <div id="olist"></div>
+          </section>
+          <section class="ac-sec">
+            <div class="ac-sh"><h2>Fit-Sure appointments</h2><a href="#fit" class="lnk">Book a fitting →</a></div>
+            <div id="blist"></div>
+          </section>
+          <section class="ac-sec">
+            <div class="ac-sh"><h2>Wishlist</h2></div>
+            <div class="prods" id="wlist"></div>
+          </section>
+        </div>
+        <aside class="ac-side">
+          <section class="ac-box">
+            <h2>Delivery details</h2>
+            <p class="ac-note">Used to deliver your orders. We need these before checkout.</p>
+            <form class="pform" id="acf">
+              <label class="lg-f">Full name<input id="acn" placeholder="Full name" autocomplete="name" required /></label>
+              <label class="lg-f">Mobile number<input id="acp" placeholder="09XX XXX XXXX" inputmode="tel" autocomplete="tel" required /></label>
+              <label class="lg-f">Delivery address<input id="aca" placeholder="Street, barangay, city" autocomplete="street-address" required /></label>
+              <button class="go">Save details</button>
+            </form>
+          </section>
+          <section class="ac-box ac-help">
+            <h2>Need a hand?</h2>
+            <p class="ac-note">Not sure about your size or an order? Our Fit-Sure team can help.</p>
+            <a class="go alt" href="#fit">Fit-Sure Service</a>
+            <button class="lnk" id="aout2" type="button">Sign out</button>
+          </section>
+        </aside>
+      </div>
+    </main>
+    <main id="about" hidden>
+      <section class="pagehead">
+        <div class="wrap">
+          <div class="crumbs">
+            <a href="#home">Home</a><span aria-hidden="true">/</span
+            ><span>About</span>
+          </div>
+          <h1>About Checkpoint</h1>
+          <p>Better Fit. Longer Journeys.</p>
+        </div>
+      </section>
+      <div class="wrap">
+        <section class="story">
+          <div class="pic">
+            <img alt="" src="assets/images/hero-home.jpg" />
+          </div>
+          <div>
+            <small class="eyebrow">Our story</small>
+            <h2>Built around one idea</h2>
+            <p>
+              Checkpoint Shoes is built around one idea: the right fit makes
+              every step easier. Shop our latest styles online, or book a
+              Fit-Sure at-home fitting and try them at home before you decide.
+            </p>
+            <p>
+              Our shoes are Marikina made, and we’ve been at it since MMXI.
+            </p>
+            <div class="cta">
+              <a class="btn blue" href="#shop">Shop the collection</a>
+              <a class="lnk" href="#fit"
+                >Fit-Sure Service <span aria-hidden="true">→</span></a
+              >
+            </div>
+          </div>
+        </section>
+        <section class="sec" style="padding-top: 0">
+          <div class="sh">
+            <div class="shh">
+              <small class="eyebrow">What we stand for</small>
+              <h2>The Checkpoint Promise</h2>
+            </div>
+          </div>
+          <div class="pillars">
+            <div class="pillar">
+              <i><svg class="ic"><use href="#i-rule" /></svg></i>
+              <h3>The right fit</h3>
+              <p>
+                Personalized fit recommendations, and an at-home fitting so you
+                can be sure before you decide.
+              </p>
+            </div>
+            <div class="pillar">
+              <i><svg class="ic"><use href="#i-shoe" /></svg></i>
+              <h3>Marikina made</h3>
+              <p>
+                Leather shoes made in Marikina, for work, for the street and
+                for everyday wear.
+              </p>
+            </div>
+            <div class="pillar">
+              <i><svg class="ic"><use href="#i-truck" /></svg></i>
+              <h3>Right to your door</h3>
+              <p>
+                Secure and fast delivery, on a schedule that works for you.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+      <section class="stats">
+        <div class="wrap">
+          <div><b>MMXI</b><span>Established in Marikina</span></div>
+          <div><b>₱150</b><span>Per at-home fitting</span></div>
+          <div><b>4</b><span>Metro Manila cities to book in</span></div>
+        </div>
+      </section>
+      <div class="wrap">
+        <section class="endcta">
+          <h2>Ready to find your fit?</h2>
+          <p>Browse the collection or let us bring the shoes to you.</p>
+          <div class="cta">
+            <a class="btn blue" href="#shop">Shop now</a>
+            <a class="btn ghost" href="#fit">Book a fitting</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <div>
+          <div class="logo">
+            <img
+              class="logo-img"
+              alt="Checkpoint Marikina Est. MMXI"
+              src="assets/images/logo-dark.png"
+            />
+          </div>
+          <p style="opacity: 0.8; font-style: italic">
+            Better Fit. Longer Journeys.
+          </p>
+        </div>
+        <div>
+          <h4>Shop</h4>
+          <a href="#shop">Men</a><a href="#shop">Women</a
+          ><a href="#shop">Kids</a>
+        </div>
+        <div>
+          <h4>Customer Care</h4>
+          <a href="#faq">FAQs</a><a href="#about">Shipping &amp; Returns</a
+          ><a href="#about">Contact Us</a>
+        </div>
+        <div>
+          <h4>Follow Us</h4>
+          <a href="#about">Instagram · Facebook · TikTok · YouTube</a>
+        </div>
+        <div class="copy">
+          <span>© 2026 Checkpoint Shoes. All rights reserved.</span
+          ><span
+            ><a href="#about">Privacy Policy</a
+            ><a href="#about">Terms &amp; Conditions</a
+            ><a href="#about">Accessibility</a></span
+          >
+        </div>
+      </div>
+    </footer>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js" defer></script>
+<script src="js/checkout.js" defer></script>
+<script src="js/fitsure.js" defer></script>
+  </body>
+</html>
