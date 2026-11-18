@@ -88,7 +88,7 @@ const meta = (p) => {
       .replace(/^(Ferrina by )?Checkpoint MARIKINA MADE /i, "")
       .replace(/\s*\|.*$/, "")
       .toLowerCase();
-  d = d[0].toUpperCase() + d.slice(1);
+  d = d ? d[0].toUpperCase() + d.slice(1) : "";
   return { t, d };
 };
 const price = (p) => (p[1] == null ? "Price on request" : money(p[1]));
@@ -107,7 +107,7 @@ const stamp = () => firebase.firestore.Timestamp.now();
 const viewHooks = {}, userHooks = [], onCfg = [], prodHooks = [];
 const CFG_DEF = {
   shipping: { fee: 150, freeOver: 5000 },
-  pay: { cod: { on: true }, gcash: { on: false, name: "", number: "" }, bank: { on: false, bank: "", name: "", number: "" } },
+  pay: { cod: { on: true }, gcash: { on: false, name: "", number: "", limit: 100000 }, bank: { on: false, bank: "", name: "", number: "", limit: 500000 } },
   fit: {
     fee: 150, capacity: 2, leadDays: 1, maxDays: 60, pairs: 3, closedDays: [0], closedDates: [],
     slots: ["9:00 AM – 11:00 AM", "11:00 AM – 1:00 PM", "1:00 PM – 3:00 PM", "3:00 PM – 5:00 PM", "5:00 PM – 7:00 PM"],
@@ -122,7 +122,12 @@ const CFG_DEF = {
 };
 const mergeCfg = (a, b) => { const o = { ...a }; for (const k in b || {}) o[k] = a[k] && typeof a[k] == "object" && !Array.isArray(a[k]) && b[k] && typeof b[k] == "object" ? mergeCfg(a[k], b[k]) : b[k] ?? a[k]; return o; };
 let CFG = mergeCfg(CFG_DEF, {});
-db.collection("settings").doc("shop").onSnapshot((s) => { CFG = mergeCfg(CFG_DEF, s.data() || {}); onCfg.forEach((f) => f()); }, () => {});
+const applyCfgText = () => {
+  $$("[data-fee]").forEach((el) => (el.textContent = money(+CFG.fit.fee || 0)));
+  $$("[data-cities]").forEach((el) => (el.textContent = (CFG.fit.cities || []).length));
+};
+applyCfgText();
+db.collection("settings").doc("shop").onSnapshot((s) => { CFG = mergeCfg(CFG_DEF, s.data() || {}); applyCfgText(); onCfg.forEach((f) => f()); }, () => {});
 let user = null, authReady = false, ready = false, profile = {}, myOrders = [];
 let wish = new Set(), cart = [];
 let store = { wish: load("cp-wish", []), cart: load("cp-cart", []) };
@@ -239,15 +244,16 @@ const stockTag = (p) => {
 };
 const card = ([p, i]) => {
   const { t, d } = meta(p);
-  return `<article class="prod" data-i="${i}"><div class="img" data-qv="${i}"><svg class="ph" aria-hidden="true"><use href="#shoe"/></svg><img alt="${esc1(t)}" src="${p[3]}" loading="lazy" decoding="async" onload="this.parentNode.classList.add('ok')" onerror="this.style.visibility='hidden'"><span class="qvb">Quick view</span></div>${heart(i)}<div class="body"><span class="pc">${CAT[p[4]]}</span><h3><button type="button" class="ptl" data-qv="${i}">The ${esc1(t)}</button></h3><p class="pd">${esc1(d)}</p>${stockTag(p)}<div class="foot"><div class="pr">${price(p)}</div><button class="add" data-i="${i}">${p[1] == null ? "Ask for price" : "Add to Cart"}</button></div></div></article>`;
+  return `<article class="prod" data-i="${i}"><div class="img" data-qv="${i}"><svg class="ph" aria-hidden="true"><use href="#shoe"/></svg><img alt="${esc1(t)}" src="${p[3]}" loading="lazy" decoding="async" onload="this.parentNode.classList.add('ok')" onerror="this.style.visibility='hidden'"><span class="qvb">Quick view</span></div>${heart(i)}<div class="body"><span class="pc">${CAT[p[4]]}</span><h3><button type="button" class="ptl" data-qv="${i}">The ${esc1(t)}</button></h3><p class="pd">${esc1(d)}</p>${stockTag(p)}<div class="foot"><div class="pr">${price(p)}</div><button class="add" data-i="${i}" ${p[1] != null && (p[8] ?? 0) <= 0 ? "disabled" : ""}>${p[1] == null ? "Ask for price" : (p[8] ?? 0) <= 0 ? "Sold out" : "Add to Cart"}</button></div></div></article>`;
 };
 const matchQ = (p) => !sq || terms(sq).every((t) => hay(p).includes(t));
 const renderP = () => {
   const list = prods
     .map((p, i) => [p, i])
     .filter(([p]) => (cf < 0 || p[4] == cf) && matchQ(p));
-  if (sortBy == "1") list.sort((a, b) => a[0][1] - b[0][1]);
-  if (sortBy == "2") list.sort((a, b) => b[0][1] - a[0][1]);
+  const pv = (x) => (x[0][1] == null ? Infinity : x[0][1]);
+  if (sortBy == "1") list.sort((a, b) => (pv(a) === pv(b) ? 0 : pv(a) < pv(b) ? -1 : 1));
+  if (sortBy == "2") list.sort((a, b) => (pv(a) === pv(b) ? 0 : pv(a) < pv(b) ? 1 : -1));
   $("#ptitle").textContent = sq
     ? `Results for “${sq}”`
     : cf < 0
@@ -303,13 +309,20 @@ function toggleWish(i) {
 
 /* ---------- cart ---------- */
 const lineKey = (c) => c.i + "|" + c.size;
+const MAX_PER_ADD = 5;
+const stockOf = (i) => Math.max(0, +prods[i]?.[8] || 0);
+const inCartOf = (i) => cart.filter((c) => c.i == i).reduce((a, c) => a + c.q, 0);
+const roomFor = (i) => Math.max(0, stockOf(i) - inCartOf(i));
+/* returns true only when the pair was really added */
 function addCart(i, size, q = 1, quiet = false) {
   const f = cart.find((c) => c.i == i && c.size == size);
-  const stock = prods[i][8], inCart = cart.filter((c) => c.i == i).reduce((a, c) => a + c.q, 0);
-  if (inCart + q > stock) return toast(stock > 0 ? `Only ${stock} left in stock` : "Sorry, this pair is out of stock");
+  const stock = stockOf(i), have = inCartOf(i), room = roomFor(i);
+  if (stock <= 0) { toast("Sorry, this pair is out of stock"); return false; }
+  if (q > room) { toast(room > 0 ? (have ? `Only ${room} more available` : `Only ${stock} left in stock`) : `You already have all ${stock} in your cart`); return false; }
   f ? (f.q += q) : cart.push({ i, size, q });
   rc(true);
   if (!quiet) toast(`The ${meta(prods[i]).t} added to cart`);
+  return true;
 }
 function rc(bump) {
   const q = cart.reduce((a, c) => a + c.q, 0),
@@ -327,7 +340,7 @@ function rc(bump) {
     ? cart
         .map((c, k) => {
           const p = prods[c.i];
-          return `<div class="ci"><span class="thumb"><img class="shoe" alt="" src="${p[3]}"></span><div><b>The ${esc1(meta(p).t)}</b>${c.size != null ? `<small class="csz">Size ${c.size} (US)</small>` : ""}<div class="cpr">${money(p[1] * c.q)}${c.q > 1 ? `<small> · ${money(p[1])} each</small>` : ""}</div><div class="cr"><div class="qty"><button data-q="${k}:-1" aria-label="Decrease quantity">−</button><span aria-live="polite">${c.q}</span><button data-q="${k}:1" aria-label="Increase quantity">+</button></div><button class="rm" data-rm="${k}">Remove</button></div></div></div>`;
+          return `<div class="ci"><span class="thumb"><img class="shoe" alt="" src="${p[3]}"></span><div><b>The ${esc1(meta(p).t)}</b>${c.size != null ? `<small class="csz">Size ${c.size} (US)</small>` : ""}${inCartOf(c.i) > stockOf(c.i) ? `<small class="csz" style="color:#b3392b">${stockOf(c.i) > 0 ? "Only " + stockOf(c.i) + " in stock" : "Out of stock"}</small>` : ""}<div class="cpr">${money(p[1] * c.q)}${c.q > 1 ? `<small> · ${money(p[1])} each</small>` : ""}</div><div class="cr"><div class="qty"><button data-q="${k}:-1" aria-label="Decrease quantity">−</button><span aria-live="polite">${c.q}</span><button data-q="${k}:1" aria-label="Increase quantity" ${roomFor(c.i) < 1 ? "disabled" : ""}>+</button></div><button class="rm" data-rm="${k}">Remove</button></div></div></div>`;
         })
         .join("")
     : `<div class="cempty"><svg class="ic" aria-hidden="true"><use href="#i-bag"/></svg><p>Your cart is empty.</p><a class="btn blue" href="#shop">Start shopping</a></div>`;
@@ -356,6 +369,8 @@ $("#clist").onclick = (e) => {
   const q = e.target.closest("[data-q]");
   if (!q) return;
   const [k, d] = q.dataset.q.split(":");
+  if (!cart[k]) return;
+  if (+d > 0 && roomFor(cart[k].i) < 1) return toast("No more stock available for this pair");
   cart[k].q += +d;
   if (cart[k].q < 1) cart.splice(k, 1);
   rc();
@@ -371,12 +386,25 @@ const qv = $("#qv"),
   qvc = $("#qvc"),
   qbody = $("#qbody");
 let qi = -1,
+  qid = null,
   qsize = null,
   qqty = 1;
-function qvRender() {
+/* keeps the quantity stepper inside what is really available */
+function qvQty() {
+  const cap = Math.max(1, Math.min(MAX_PER_ADD, roomFor(qi)));
+  qqty = Math.min(cap, Math.max(1, qqty));
+  const q = $("#qq"); if (q) q.textContent = qqty;
+  const dn = qbody.querySelector('[data-qd="-1"]'), up = qbody.querySelector('[data-qd="1"]');
+  if (dn) dn.disabled = qqty <= 1;
+  if (up) up.disabled = qqty >= cap;
+}
+function qvRender(keep) {
   const p = prods[qi],
     { t, d } = meta(p),
     n = prods.length;
+  qid = p[7];
+  const room = roomFor(qi), out = stockOf(qi) <= 0, cap = Math.max(1, Math.min(MAX_PER_ADD, room));
+  qqty = Math.min(cap, Math.max(1, qqty));
   qbody.innerHTML = `
     <div class="qimg" id="qimg">
       <svg class="ph" aria-hidden="true"><use href="#shoe"/></svg>
@@ -412,19 +440,21 @@ function qvRender() {
       </div>`
       }
       <div class="qact">
-        ${p[1] == null ? "" : `<div class="qs" aria-label="Quantity"><button type="button" data-qd="-1" aria-label="Decrease quantity">−</button><span id="qq" aria-live="polite">${qqty}</span><button type="button" data-qd="1" aria-label="Increase quantity">+</button></div>`}
-        <button type="button" class="go qadd" id="qadd">${p[1] == null ? "Ask for price" : "Add to Cart"}</button>
+        ${p[1] == null ? "" : `<div class="qs" aria-label="Quantity"><button type="button" data-qd="-1" aria-label="Decrease quantity" ${qqty <= 1 ? "disabled" : ""}>−</button><span id="qq" aria-live="polite">${qqty}</span><button type="button" data-qd="1" aria-label="Increase quantity" ${qqty >= cap ? "disabled" : ""}>+</button></div>`}
+        <button type="button" class="go qadd" id="qadd" ${p[1] != null && (out || room < 1) ? "disabled" : ""}>${p[1] == null ? "Ask for price" : out ? "Out of stock" : room < 1 ? "Max in cart" : "Add to Cart"}</button>
       </div>
       <ul class="qperks">
         <li><svg class="ic"><use href="#i-shoe"/></svg>Marikina made, since MMXI</li>
         <li><svg class="ic"><use href="#i-truck"/></svg>Secure and fast delivery</li>
-        <li><svg class="ic"><use href="#i-cal"/></svg>Try it at home with Fit-Sure — ${money(150)} per appointment</li>
+        <li><svg class="ic"><use href="#i-cal"/></svg>Try it at home with Fit-Sure — ${money(+CFG.fit.fee || 0)} per appointment</li>
       </ul>
       <a class="lnk" href="#fit">Not sure about your size? Book a fitting <span aria-hidden="true">→</span></a>
     </div>`;
-  qbody.scrollTop = 0;
-  const info = qbody.querySelector(".qinfo");
-  if (info) info.scrollTop = 0;
+  if (!keep) {
+    qbody.scrollTop = 0;
+    const info = qbody.querySelector(".qinfo");
+    if (info) info.scrollTop = 0;
+  }
 }
 function shakeSizes() {
   const s = $("#sizes"),
@@ -469,8 +499,8 @@ qbody.addEventListener("click", (e) => {
   }
   const qd = e.target.closest("[data-qd]");
   if (qd) {
-    qqty = Math.min(5, Math.max(1, qqty + +qd.dataset.qd));
-    $("#qq").textContent = qqty;
+    qqty += +qd.dataset.qd;
+    qvQty();
     return;
   }
   const qn = e.target.closest("[data-qn]");
@@ -481,7 +511,7 @@ qbody.addEventListener("click", (e) => {
     if (p[1] == null) return toast("Please contact us for pricing on this pair");
     if (needLogin("add to your cart")) return;
     if (qsize == null) return shakeSizes();
-    addCart(qi, qsize, qqty, true);
+    if (!addCart(qi, qsize, qqty, true)) return qvRender(true);
     add.textContent = "Added ✓";
     add.classList.add("done");
     setTimeout(() => {
@@ -698,6 +728,7 @@ document.addEventListener("click", (e) => {
   if (a) {
     const i = +a.dataset.i;
     if (prods[i][1] == null) return toast("Please contact us for pricing on this pair");
+    if (stockOf(i) <= 0) return toast("Sorry, this pair is out of stock");
     if (needLogin("add to your cart")) return;
     return openQV(i, { needSize: true });
   }
@@ -782,14 +813,25 @@ addEventListener(
 );
 
 /* ---------- newsletter ---------- */
-$("#ns").onclick = () => {
+$("#ns").onclick = async () => {
   const v = $("#ne").value.trim();
   if (!/^\S+@\S+\.\S+$/.test(v)) {
     toast("Enter a valid email address");
     return;
   }
-  $("#ne").value = "";
-  toast("Thanks for subscribing!");
+  const btn = $("#ns"), label = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+  try {
+    await db.collection("newsletter").add({ email: v, createdAt: stamp() });
+    $("#ne").value = "";
+    toast("Email recorded. Newsletter delivery isn't configured in this demo.");
+  } catch (e) {
+    toast("Couldn't record your email: " + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
+  }
 };
 
 /* ---------- routing ---------- */
@@ -873,6 +915,7 @@ db.collection("products").onSnapshot((s) => {
   prods.length = 0;
   L.forEach((x) => prods.push([x.name, x.price, "", x.image || "", Math.max(0, CAT.indexOf(x.category)), x.title || "", x.description || "", x.id, x.stock ?? 0, x.sizes || []]));
   ready = true; hydrate(); renderP(); rc(); prodHooks.forEach((f) => f());
+  if (isOpen(qv)) { const k = ix(qid); if (k < 0) closeEl(qv, false); else { qi = k; qvRender(true); } }
   if (!$("#account").hidden) renderAccount();
 }, (e) => toast("Couldn't load products: " + e.message));
 
