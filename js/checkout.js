@@ -25,6 +25,9 @@ function payInfo(method, amount) {
   return `<p>Transfer <b>${peso(amount)}</b> to <b>${esc1(P.bank.bank || "—")}</b>, account name <b>${esc1(P.bank.name || "—")}</b>, account no. <b>${esc1(P.bank.number || "—")}</b>. Enter the reference number below or after placing your order.</p>`;
 }
 const payMethods = () => ["cod", "gcash", "bank"].filter((m) => CFG.pay[m]?.on);
+/* per-order limits set in admin Settings (0 = no limit); cash on delivery has none */
+const payLimit = (m) => (m == "gcash" || m == "bank" ? Math.max(0, +CFG.pay[m]?.limit || 0) : 0);
+const overLimit = (m, amt) => { const l = payLimit(m); return l > 0 && amt > l; };
 
 /* ---------- checkout page ---------- */
 let ckDone = null, ckPay = "cod", ckBusy = false;
@@ -44,26 +47,28 @@ function renderCheckout() {
   if (!user) return;
   if (ckDone) return renderDone(root);
   if (!cart.length) { toast("Your cart is empty"); location.hash = "#shop"; return; }
-  const ms = payMethods();
-  if (!ms.includes(ckPay)) ckPay = ms[0] || "cod";
-  const { sub, ship, total } = cartTotals(), issues = stockIssues();
+  const ms = payMethods(), { sub, ship, total } = cartTotals(), issues = stockIssues();
+  const usable = ms.filter((m) => !overLimit(m, total));
+  if (!ms.includes(ckPay) || overLimit(ckPay, total)) ckPay = usable[0] || ms[0] || "cod";
+  /* keep what the customer already typed when the page refreshes (e.g. settings changed) */
+  const keep = { n: $("#ck-n")?.value, p: $("#ck-p")?.value, a: $("#ck-a")?.value, note: $("#ck-note")?.value, ref: $("#ck-ref")?.value };
   root.innerHTML = `
     <div class="ck-head"><a class="back" href="#shop">← Continue shopping</a><h1>Checkout</h1></div>
     <div class="ck">
       <div class="ck-main">
         <section class="box"><h3>1. Delivery details</h3><p class="sub">Where should we send your order?</p>
           <div class="f">
-            <label class="full">Full name<input id="ck-n" value="${esc1(profile.name || "")}" autocomplete="name"></label>
-            <label>Mobile number<input id="ck-p" value="${esc1(profile.phone || "")}" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></label>
+            <label class="full">Full name<input id="ck-n" value="${esc1(keep.n ?? profile.name ?? "")}" autocomplete="name"></label>
+            <label>Mobile number<input id="ck-p" value="${esc1(keep.p ?? profile.phone ?? "")}" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></label>
             <label>Email<input value="${esc1(user.email)}" disabled></label>
-            <label class="full">Complete address<input id="ck-a" value="${esc1(profile.address || "")}" autocomplete="street-address" placeholder="House no., street, barangay, city, province"></label>
-            <label class="full">Note to seller <small class="opt">(optional)</small><input id="ck-note" placeholder="Landmark, preferred delivery time…" maxlength="200"></label>
+            <label class="full">Complete address<input id="ck-a" value="${esc1(keep.a ?? profile.address ?? "")}" autocomplete="street-address" placeholder="House no., street, barangay, city, province"></label>
+            <label class="full">Note to seller <small class="opt">(optional)</small><input id="ck-note" value="${esc1(keep.note ?? "")}" placeholder="Landmark, preferred delivery time…" maxlength="200"></label>
           </div>
         </section>
         <section class="box"><h3>2. Payment</h3><p class="sub">Choose how you would like to pay.</p>
-          <div class="pm" id="ck-pm">${ms.map((m) => `<label class="${m == ckPay ? "on" : ""}"><input type="radio" name="pm" value="${m}" ${m == ckPay ? "checked" : ""}><span><b>${PAYL[m]}</b><small>${m == "cod" ? "Pay when it arrives" : m == "gcash" ? "Send via GCash" : "Online or over-the-counter transfer"}</small></span></label>`).join("")}</div>
+          <div class="pm" id="ck-pm">${ms.map((m) => { const off = overLimit(m, total), lim = payLimit(m), base = m == "cod" ? "Pay when it arrives" : m == "gcash" ? "Send via GCash" : "Online or over-the-counter transfer"; return `<label class="${m == ckPay ? "on" : ""}${off ? " off" : ""}"><input type="radio" name="pm" value="${m}" ${m == ckPay ? "checked" : ""} ${off ? "disabled" : ""}><span><b>${PAYL[m]}</b><small>${off ? `Not available for orders over ${peso(lim)}` : base + (lim ? ` · up to ${peso(lim)} per order` : "")}</small></span></label>`; }).join("")}</div>
           <div class="pinfo" id="ck-pi"></div>
-          <label class="full" id="ck-refw" hidden>Payment reference no. <small class="opt">(optional, if you've already paid)</small><input id="ck-ref" maxlength="40" placeholder="e.g. 1234 567 890123"></label>
+          <label class="full" id="ck-refw" hidden>Payment reference no. <small class="opt">(optional, if you've already paid)</small><input id="ck-ref" value="${esc1(keep.ref ?? "")}" maxlength="40" placeholder="e.g. 1234 567 890123"></label>
         </section>
       </div>
       <aside class="side ck-sum">
@@ -74,6 +79,7 @@ function renderCheckout() {
         ${CFG.shipping.freeOver > 0 && ship ? `<p class="note">Spend ${peso(CFG.shipping.freeOver - sub)} more for free shipping.</p>` : ""}
         <hr><div class="l tot">Total <b>${peso(total)}</b></div>
         ${issues.length ? `<div class="ck-warn"><b>Please update your cart</b>${issues.map((x) => `<p>${esc1(x)}</p>`).join("")}</div>` : ""}
+        <div class="ck-warn" id="ck-lw" hidden></div>
         <button class="go" id="ck-go" ${issues.length ? "disabled" : ""}>Place order</button>
         <p class="note">By placing your order you agree to our delivery and returns terms. You can cancel it from My Account while it is still pending.</p>
       </aside>
@@ -86,6 +92,15 @@ function payUI() {
   $("#ck-pi").innerHTML = payInfo(ckPay, total);
   $("#ck-refw").hidden = ckPay == "cod";
   $$("#ck-pm label").forEach((l) => l.classList.toggle("on", l.querySelector("input").value == ckPay));
+  ckGate();
+}
+/* enables / disables "Place order" and explains why */
+function ckGate() {
+  const go = $("#ck-go"), lw = $("#ck-lw"); if (!go || !lw) return;
+  const { total } = cartTotals(), bad = overLimit(ckPay, total), anyOk = payMethods().some((m) => !overLimit(m, total));
+  lw.hidden = !bad;
+  lw.innerHTML = bad ? `<b>${PAYL[ckPay]} limit reached</b><p>${anyOk ? `${PAYL[ckPay]} accepts up to ${peso(payLimit(ckPay))} per order. Please choose another payment method.` : `This order is above the ${peso(payLimit(ckPay))} ${PAYL[ckPay]} limit and no other payment method is available. Please reduce your order or contact us.`}</p>` : "";
+  go.disabled = ckBusy || bad || stockIssues().length > 0;
 }
 document.addEventListener("change", (e) => { if (e.target.name == "pm") { ckPay = e.target.value; payUI(); } });
 document.addEventListener("click", async (e) => {
@@ -94,24 +109,49 @@ document.addEventListener("click", async (e) => {
   if (!n) { toast("Please enter your full name"); return $("#ck-n").focus(); }
   if (!/^[0-9+()\-\s]{7,}$/.test(ph)) { toast("Please enter a valid mobile number"); return $("#ck-p").focus(); }
   if (ad.length < 10) { toast("Please enter your complete delivery address"); return $("#ck-a").focus(); }
+  if (!payMethods().includes(ckPay)) { toast("That payment method is no longer available"); return renderCheckout(); }
+  if (overLimit(ckPay, cartTotals().total)) { toast(`${PAYL[ckPay]} accepts up to ${peso(payLimit(ckPay))} per order`); return ckGate(); }
   if (stockIssues().length) return renderCheckout();
   ckBusy = true; $("#ck-go").disabled = true; $("#ck-go").textContent = "Placing order…";
+  let placed = false;
   try {
     const items = cart.map((c) => { const p = prods[c.i]; return { pid: p[7], name: meta(p).t, qty: c.q, price: p[1], size: c.size ?? null }; });
     const { sub, ship, total } = cartTotals();
+    const ref = db.collection("orders").doc();
     const o = {
       no: refNo("CP"), userId: user.uid, customer: n, phone: ph, email: user.email, contact: ph + " · " + user.email, address: ad,
       note: $("#ck-note").value.trim(), items, subtotal: sub, shipping: ship, total,
       payment: { method: ckPay, status: "unpaid", ref: ckPay == "cod" ? "" : $("#ck-ref").value.trim() },
       status: "pending", stockDeducted: false, history: [{ status: "pending", at: stamp(), note: "Order placed" }], createdAt: stamp(),
     };
-    await db.collection("orders").add(o);
+    /* Re-check availability and price, then save the order atomically. Inventory is deducted
+       only by an admin when the order is confirmed, so customers never write product stock. */
+    await db.runTransaction(async (tx) => {
+      const need = {};
+      items.forEach((i) => (need[i.pid] = (need[i.pid] || 0) + i.qty));
+      const pids = Object.keys(need);
+      const snaps = await Promise.all(pids.map((pid) => tx.get(db.collection("products").doc(pid))));
+      const problems = [];
+      snaps.forEach((s, k) => {
+        const d = s.exists ? s.data() : null, name = items.find((i) => i.pid == pids[k]).name, have = d ? +d.stock || 0 : 0;
+        if (!d || d.published === false) problems.push(`The ${name} is no longer available`);
+        else if (have < need[pids[k]]) problems.push(`The ${name}: ${have > 0 ? "only " + have + " left" : "out of stock"}`);
+        else if (items.some((i) => i.pid == pids[k] && +d.price !== +i.price)) problems.push(`The price of the ${name} has changed. Please review your cart`);
+      });
+      if (problems.length) throw Object.assign(new Error(problems.join(". ")), { soft: true });
+      tx.set(ref, o);
+    });
+    placed = true;
     profile = { ...profile, name: profile.name || n, phone: ph, address: ad };
     db.collection("users").doc(user.uid).set({ name: profile.name, phone: ph, address: ad, email: user.email }, { merge: true }).catch(() => {});
     cart = []; rc();
-    ckDone = o; renderCheckout(); scrollTo(0, 0);
-  } catch (x) { toast("Couldn't place your order: " + x.message); }
+    ckDone = { ...o, id: ref.id }; renderCheckout(); scrollTo(0, 0);
+  } catch (x) {
+    if (x.soft) { toast(x.message); renderCheckout(); }
+    else toast(x.code == "permission-denied" ? "We couldn't place your order right now. Please try again in a moment." : "Couldn't place your order: " + x.message);
+  }
   ckBusy = false;
+  if (!placed) { const go = $("#ck-go"); if (go) { go.textContent = "Place order"; ckGate(); } }
 });
 function renderDone(root) {
   const o = ckDone;
@@ -154,7 +194,7 @@ function renderMyOrders() {
       <div class="ord-pay"><span>${PAYL[pay.method] || pay.method}</span><span class="pb ${paid ? "paid" : "unpaid"}">${paid ? "Paid" : o.status == "cancelled" ? "Unpaid" : pay.method == "cod" ? "Pay on delivery" : pay.ref ? "Payment under review" : "Awaiting payment"}</span></div>
       ${!paid && pay.method != "cod" && ["pending", "processing"].includes(o.status) ? `<div class="ord-ref"><p>${payInfo(pay.method, o.total)}</p><div class="rf"><input data-ref="${o.id}" placeholder="Payment reference no." value="${esc1(pay.ref || "")}" maxlength="40"><button class="go" data-saveref="${o.id}">${pay.ref ? "Update" : "Submit"}</button></div></div>` : ""}
       ${o.history?.length > 1 ? `<details class="ord-hist"><summary>Order updates</summary><ul>${[...o.history].reverse().map((h) => `<li><b>${OSTEP[h.status] || h.status}</b><span>${dFmt(h.at, true)}</span>${h.note ? `<small>${esc1(h.note)}</small>` : ""}</li>`).join("")}</ul></details>` : ""}
-      ${o.status == "pending" ? `<button class="lnk ord-cancel" data-cancelo="${o.id}">Cancel this order</button>` : ""}
+      ${o.status == "pending" && !o.stockDeducted ? `<button class="lnk ord-cancel" data-cancelo="${o.id}">Cancel this order</button>` : o.status == "pending" ? `<p class="ord-msg">This order is being handled. Please contact us to cancel it.</p>` : ""}
     </article>`;
   }).join("") : `<div class="ac-empty"><b>No orders yet</b><p>When you place an order, you can follow it here.</p><a class="go" href="#shop">Start shopping</a></div>`;
 }
@@ -163,8 +203,14 @@ $("#olist").addEventListener("click", async (e) => {
   try {
     if (c) {
       if (!confirm("Cancel this order? This can't be undone.")) return;
-      const o = myOrders.find((x) => x.id == c.dataset.cancelo);
-      await db.collection("orders").doc(o.id).update({ status: "cancelled", cancelReason: "Cancelled by customer", statusUpdatedAt: stamp(), history: [...(o.history || []), { status: "cancelled", at: stamp(), note: "Cancelled by customer" }] });
+      const oref = db.collection("orders").doc(c.dataset.cancelo);
+      await db.runTransaction(async (tx) => {
+        const os = await tx.get(oref);
+        if (!os.exists) throw Error("We couldn't find this order.");
+        const o = os.data();
+        if (o.status != "pending") throw Error("This order is already being handled, so it can't be cancelled here. Please contact us.");
+        tx.update(oref, { status: "cancelled", cancelReason: "Cancelled by customer", stockDeducted: false, statusUpdatedAt: stamp(), history: [...(o.history || []), { status: "cancelled", at: stamp(), note: "Cancelled by customer" }] });
+      });
       toast("Order cancelled");
     }
     if (s) {
