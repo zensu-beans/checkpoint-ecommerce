@@ -185,24 +185,21 @@
     </svg>
     <div class="top">
       <div class="wrap">
-        <span class="promo">At-home fitting &amp; delivery — ₱150 per appointment</span>
+        <span class="promo">At-home fitting &amp; delivery — <span data-fee>₱150</span> per appointment</span>
         <span class="tl"
-          ><a href="#about">Store Locator</a><a href="#about">Track Order</a
+          ><a href="#about">Store Locator</a><a href="#account">Track Order</a
           ><a href="#faq">Help &amp; FAQs</a></span
         >
       </div>
     </div>
     <header>
       <div class="wrap">
-        <a class="logo" href="#home" aria-label="Checkpoint Marikina"
-          ><img
-            class="logo-img logo-l"
-            alt="Checkpoint Marikina Est. MMXI"
-            src="assets/images/logo-light.png" /><img
-            class="logo-img logo-d"
-            alt="Checkpoint Marikina Est. MMXI"
-            src="assets/images/logo-dark.png"
-        /></a>
+        <a class="logo" href="#home" aria-label="Checkpoint Marikina">
+          <span class="logo-variants" aria-hidden="true">
+            <img class="logo-for-light" src="assets/images/logo-light.png" alt="">
+            <img class="logo-for-dark" src="assets/images/logo-dark.png" alt="">
+          </span>
+        </a>
         <nav>
           <a href="#home">Home</a><a href="#shop">Shop</a
           ><a href="#fit">Fit-Sure Service</a><a href="#about">About</a>
@@ -299,7 +296,7 @@
           </div>
           <ul class="facts">
             <li><b>MMXI</b><span>Established in Marikina</span></li>
-            <li><b>₱150</b><span>Per at-home fitting</span></li>
+            <li><b data-fee>₱150</b><span>Per at-home fitting</span></li>
             <li><b>Fit-Sure</b><span>Try before you decide</span></li>
           </ul>
         </div>
@@ -324,7 +321,7 @@
             <i><svg class="ic"><use href="#i-cal" /></svg></i>
             <div>
               <b>Book a fitting</b
-              ><span>We come to you — ₱150 per appointment.</span>
+              ><span>We come to you — <span data-fee>₱150</span> per appointment.</span>
             </div>
           </div>
           <div class="perk">
@@ -371,7 +368,7 @@
             to you.
           </p>
           <ul>
-            <li>Delivery and at-home fitting for ₱150 per appointment</li>
+            <li>Delivery and at-home fitting for <span data-fee>₱150</span> per appointment</li>
             <li>Try multiple sizes or styles</li>
             <li>Schedule at your convenience</li>
           </ul>
@@ -393,7 +390,7 @@
               type="email"
               placeholder="Enter your email"
               aria-label="Email"
-            /><button class="btn blue" id="ns">Subscribe</button>
+            /><button type="button" class="btn blue" id="ns">Subscribe</button>
           </div>
         </div>
       </section>
@@ -433,7 +430,7 @@
             <b>Not sure about your size?</b>
             <span
               >Book a Fit-Sure fitting and try multiple sizes or styles at home
-              — ₱150 per appointment.</span
+              — <span data-fee>₱150</span> per appointment.</span
             >
           </div>
           <a class="btn blue" href="#fit">Book a fitting</a>
@@ -461,7 +458,7 @@
             >
           </div>
           <ul class="facts">
-            <li><b>₱150</b><span>Per appointment</span></li>
+            <li><b data-fee>₱150</b><span>Per appointment</span></li>
             <li><b>2 hrs</b><span>Advance call from our team</span></li>
             <li><b>Multiple</b><span>Sizes &amp; styles to try</span></li>
           </ul>
@@ -557,7 +554,7 @@
     <main id="login" hidden>
       <div class="wrap lg">
         <aside class="lg-brand">
-          <img src="assets/images/logo-dark.png" alt="Checkpoint, Marikina" />
+          <img class="logo-image" src="assets/images/logo-dark.png" alt="Checkpoint">
           <h2>Crafted in Marikina. <em>Made to walk with you.</em></h2>
           <p>Create an account to track your orders, save your wishlist and check out faster.</p>
         </aside>
@@ -715,8 +712,8 @@
       <section class="stats">
         <div class="wrap">
           <div><b>MMXI</b><span>Established in Marikina</span></div>
-          <div><b>₱150</b><span>Per at-home fitting</span></div>
-          <div><b>4</b><span>Metro Manila cities to book in</span></div>
+          <div><b data-fee>₱150</b><span>Per at-home fitting</span></div>
+          <div><b data-cities>4</b><span>Metro Manila cities to book in</span></div>
         </div>
       </section>
       <div class="wrap">
@@ -735,11 +732,7 @@
       <div class="wrap">
         <div>
           <div class="logo">
-            <img
-              class="logo-img"
-              alt="Checkpoint Marikina Est. MMXI"
-              src="assets/images/logo-dark.png"
-            />
+            <img class="logo-image" src="assets/images/logo-dark.png" alt="Checkpoint">
           </div>
           <p style="opacity: 0.8; font-style: italic">
             Better Fit. Longer Journeys.
