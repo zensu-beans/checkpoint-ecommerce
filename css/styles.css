@@ -726,7 +726,7 @@ footer a:hover {
   opacity: 1;
 }
 footer .logo {
-  font-size: 24px;
+  width: 190px;
 }
 .copy {
   grid-column: 1/-1;
@@ -1079,9 +1079,6 @@ select {
     gap: 12px;
     height: 68px;
   }
-  .logo {
-    font-size: 20px;
-  }
   nav {
     gap: 16px;
     overflow-x: auto;
@@ -1187,37 +1184,45 @@ select {
   background: #fff;
 }
 .logo {
-  line-height: 0;
+  line-height: 1;
 }
-.logo-img {
+.logo-image,
+.logo-variants img {
   display: block;
-  height: 44px;
-  width: auto;
+  width: 100%;
+  height: auto;
 }
-.logo-d {
-  display: none;
+.logo-variants {
+  display: inline-flex;
+  width: 170px;
+  align-items: center;
 }
-footer .logo-img {
-  height: 56px;
+.logo-for-dark {
+  display: none !important;
 }
-@media (max-width: 600px) {
-  .logo-img {
-    height: 36px;
-  }
+:root[data-theme="dark"] .logo-for-light {
+  display: none !important;
+}
+:root[data-theme="dark"] .logo-for-dark {
+  display: block !important;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .logo-l {
-    display: none;
+  :root:not([data-theme="light"]) .logo-for-light {
+    display: none !important;
   }
-  :root:not([data-theme="light"]) .logo-d {
-    display: block;
+  :root:not([data-theme="light"]) .logo-for-dark {
+    display: block !important;
   }
 }
-:root[data-theme="dark"] .logo-l {
-  display: none;
+@media (max-width: 860px) {
+  .logo-variants {
+    width: 140px;
+  }
 }
-:root[data-theme="dark"] .logo-d {
-  display: block;
+@media (max-width: 420px) {
+  .logo-variants {
+    width: 112px;
+  }
 }
 
 /* ==========================================================================
@@ -2363,7 +2368,6 @@ a, button, input, select, summary { touch-action: manipulation; }
 /* ---------- Small phone (≤360) ---------- */
 @media (max-width: 360px) {
   .wrap { padding: 0 14px; }
-  .logo-img { height: 32px; }
   .prods, #prods-home { gap: 10px; }
   .prod .body { padding: 12px 10px 14px; }
   .perks { padding: 20px 14px; }
@@ -2453,7 +2457,7 @@ a, button, input, select, summary { touch-action: manipulation; }
 /* ---------- Login / sign-up page ---------- */
 #login .lg { padding: 0; width: calc(100% - 48px); display: grid; grid-template-columns: 1fr minmax(340px, 460px); gap: 0; max-width: 980px; margin: 48px auto 72px; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: var(--card); }
 .lg-brand { background: var(--dark); color: #f2ece5; padding: 48px 40px; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
-.lg-brand img { width: 150px; max-width: 60%; height: auto; }
+.lg-brand .logo-image { width: min(260px, 72%); }
 .lg-brand h2 { font-family: "Playfair Display", serif; font-weight: 500; font-size: clamp(26px, 3vw, 34px); line-height: 1.2; margin: 0 0 12px; }
 .lg-brand h2 em { font-style: italic; opacity: .8; }
 .lg-brand p { margin: 0; opacity: .75; line-height: 1.6; font-size: 15px; }
@@ -2482,7 +2486,6 @@ a, button, input, select, summary { touch-action: manipulation; }
 @media (max-width: 760px) {
   #login .lg { grid-template-columns: 1fr; width: calc(100% - 28px); margin: 16px auto 48px; border-radius: 14px; }
   .lg-brand { padding: 28px 24px; gap: 14px; }
-  .lg-brand img { width: 110px; }
   .lg-brand p { display: none; }
   .lg-card { padding: 28px 22px; }
 }
@@ -2773,3 +2776,10 @@ a, button, input, select, summary { touch-action: manipulation; }
   .bkhead h2, .faq-intro h2 { font-size: 26px; }
 }
 #fit .slot.on { background: var(--btn); color: var(--btnink); border-color: var(--btn); }
+
+/* ---------- stock limits & payment limits ---------- */
+.add:disabled, .qadd:disabled { opacity: .5; cursor: not-allowed; }
+.qs button:disabled, .qty button:disabled { opacity: .35; cursor: not-allowed; background: none; }
+.pm label.off { opacity: .55; cursor: not-allowed; }
+.pm label.off small { color: #b3392b; }
+.add:disabled:hover { background: none; color: inherit; border-color: var(--ink); }
