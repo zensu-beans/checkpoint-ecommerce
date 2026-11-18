@@ -8,10 +8,17 @@ const fromYmd = (s) => { const [y, m, d] = s.split("-").map(Number); return new 
 const fitFmt = (d) => d.toLocaleDateString("en-PH", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
 
 const FIT = { date: null, slot: null, pairs: [{ pid: "", size: null }], svc: new Set(), where: "home", my: [], busy: {}, vy: 0, vm: 0, done: null, busyUnsub: null, busyFor: null, ready: false, sending: false };
+const slotRef = (date, slot) => db.collection("fitcapacity").doc(`${date}_${slot}`);
+async function slotCount(tx, date, slot) {
+  const ref = slotRef(date, slot), snap = await tx.get(ref);
+  if (snap.exists) return { ref, count: Math.max(0, +snap.data().count || 0) };
+  const busy = await db.collection("fitbusy").where("date", "==", date).get();
+  return { ref, count: busy.docs.filter((d) => +d.data().slot === +slot).length };
+}
 const today0 = () => { const t = new Date(); t.setHours(0, 0, 0, 0); return t; };
 const fc = () => CFG.fit;
-const minDate = () => new Date(today0().getTime() + (fc().leadDays || 1) * 864e5);
-const maxDate = () => new Date(today0().getTime() + (fc().maxDays || 60) * 864e5);
+const minDate = () => new Date(today0().getTime() + (+fc().leadDays >= 0 ? +fc().leadDays : 1) * 864e5);
+const maxDate = () => new Date(today0().getTime() + (+fc().maxDays > 0 ? +fc().maxDays : 60) * 864e5);
 const dayOpen = (d) => d >= minDate() && d <= maxDate() && !fc().closedDays.includes(d.getDay()) && !fc().closedDates.includes(ymd(d));
 
 function initFit() {
@@ -129,7 +136,7 @@ function fitUpd() {
   $("#slots").innerHTML = FIT.date ? fc().slots.map((s, i) => { const full = (FIT.busy[i] || 0) >= cap; return `<button type="button" class="slot ${i === FIT.slot ? "on" : ""}" data-s="${i}" ${full ? "disabled" : ""}>${esc1(s)}${full ? "<small>Fully booked</small>" : ""}</button>`; }).join("") : `<p class="fnote">Pick a date first.</p>`;
   $("#slotnote").textContent = FIT.date && fc().slots.every((_, i) => (FIT.busy[i] || 0) >= cap) ? "All slots are taken that day. Please try another date." : "";
   $("#sdt").textContent = FIT.date && FIT.slot != null ? `${fitFmt(FIT.date)} · ${fc().slots[FIT.slot]}` : "Choose a date and time";
-  const done = FIT.pairs.filter((r) => r.pid);
+  const done = FIT.pairs.filter((r) => r.pid && prods.some((x) => x[7] == r.pid));
   $("#spr").innerHTML = done.length ? done.map((r) => { const p = prods.find((x) => x[7] == r.pid); return `<div class="l"><span>The ${esc1(meta(p).t)}</span><span>${r.size ? "Size " + esc1(r.size) : "Size?"}</span></div>`; }).join("") : "<p>None selected</p>";
   $("#sad").innerHTML = [$("#nm").value, $("#ad").value, $("#ct").value + " " + $("#zp").value, $("#ph").value].map(esc1).filter((x) => x.trim()).join("<br>") || "—";
   $("#sfee").textContent = peso(fc().fee);
@@ -158,24 +165,35 @@ async function submitFit() {
   FIT.sending = true; const btn = $("#go"); btn.disabled = true; btn.textContent = "Sending request…";
   try {
     const key = ymd(FIT.date);
-    const taken = (await db.collection("fitbusy").where("date", "==", key).get()).docs.filter((d) => d.data().slot == FIT.slot).length;
-    if (taken >= fc().capacity) { FIT.slot = null; fitUpd(); throw Error("That time slot was just taken. Please choose another."); }
+    const selectedSlot = FIT.slot;
     const { min, max, sv } = fitTotals();
     const doc = {
       no: refNo("FS"), userId: user.uid, customer: $("#nm").value.trim(), phone: $("#ph").value.trim(), email: user.email,
       address: $("#ad").value.trim(), city: $("#ct").value, zip: $("#zp").value.trim(), note: $("#fnote").value.trim(),
-      date: key, slot: FIT.slot, slotLabel: fc().slots[FIT.slot],
+      date: key, slot: selectedSlot, capacityKey: `${key}_${selectedSlot}`, slotLabel: fc().slots[selectedSlot],
       pairs: pairs.map((r) => { const p = prods.find((x) => x[7] == r.pid); return { pid: r.pid, name: meta(p).t, size: r.size, price: p[1] }; }),
       services: sv.map((s) => ({ name: s.name, price: +s.price, max: +(s.max || s.price) })),
       fee: +fc().fee, estMin: min, estMax: max, status: "pending",
       history: [{ status: "pending", at: stamp(), note: "Appointment requested" }], createdAt: stamp(),
     };
-    const ref = db.collection("bookings").doc(), b = db.batch();
-    b.set(ref, doc); b.set(db.collection("fitbusy").doc(ref.id), { date: key, slot: FIT.slot, userId: user.uid });
-    await b.commit();
+    const ref = db.collection("bookings").doc();
+    const marker = db.collection("fitbusy").doc(ref.id), capacity = +fc().capacity || 1;
+    await db.runTransaction(async (tx) => {
+      const current = await slotCount(tx, key, selectedSlot);
+      if (current.count >= capacity) throw Error("That time slot was just taken. Please choose another.");
+      tx.set(current.ref, { date: key, slot: selectedSlot, count: current.count + 1, bookingId: ref.id });
+      tx.set(ref, doc);
+      tx.set(marker, { date: key, slot: selectedSlot });
+    });
     profile = { ...profile, name: profile.name || doc.customer, phone: profile.phone || doc.phone, address: profile.address || doc.address };
     FIT.done = doc; FIT.busyUnsub?.(); FIT.busyUnsub = null; renderFitDone(); $("#book").scrollIntoView();
-  } catch (x) { toast(x.message); }
+  } catch (x) {
+    if (x.message?.includes("time slot was just taken")) {
+      FIT.slot = null;
+      fitUpd();
+    }
+    toast(x.message);
+  }
   FIT.sending = false; btn.disabled = false; btn.textContent = "Request appointment";
 }
 function renderFitDone() {
@@ -194,7 +212,12 @@ function renderFitDone() {
 viewHooks.fit = () => { if (FIT.done) return; initFit(); fillFit(); };
 onCfg.push(() => { if (FIT.ready && !FIT.done) { fitStatic(); fitCal(); fitPairs(); fitUpd(); } });
 /* product list may arrive after the page opens */
-prodHooks.push(() => { if (FIT.ready && !FIT.done) { fitPairs(); fitUpd(); } });
+prodHooks.push(() => {
+  if (!FIT.ready || FIT.done) return;
+  /* drop pairs whose product was deleted, unpublished or sold out meanwhile */
+  FIT.pairs.forEach((r, i) => { if (r.pid && !prods.some((x) => x[7] == r.pid && x[8] > 0)) FIT.pairs[i] = { pid: "", size: null }; });
+  fitPairs(); fitUpd();
+});
 
 /* clear the booking form / confirmation on sign-out and when leaving the page */
 function resetFit() {
@@ -234,10 +257,16 @@ $("#blist")?.addEventListener("click", async (e) => {
   const b = FIT.my.find((x) => x.id == c.dataset.cancelb);
   if (!confirm("Cancel this appointment?")) return;
   try {
-    const w = db.batch();
-    w.update(db.collection("bookings").doc(b.id), { status: "cancelled", cancelReason: "Cancelled by customer", statusUpdatedAt: stamp(), history: [...(b.history || []), { status: "cancelled", at: stamp(), note: "Cancelled by customer" }] });
-    w.delete(db.collection("fitbusy").doc(b.id));
-    await w.commit(); toast("Appointment cancelled");
+    const ref = db.collection("bookings").doc(b.id);
+    await db.runTransaction(async (tx) => {
+      const current = await tx.get(ref);
+      if (!current.exists || !["pending", "confirmed"].includes(current.data().status)) throw Error("This appointment can no longer be cancelled.");
+      const data = current.data(), capacity = await slotCount(tx, data.date, data.slot);
+      tx.update(ref, { status: "cancelled", capacityKey: `${data.date}_${data.slot}`, cancelReason: "Cancelled by customer", statusUpdatedAt: stamp(), history: [...(data.history || []), { status: "cancelled", at: stamp(), note: "Cancelled by customer" }] });
+      tx.delete(db.collection("fitbusy").doc(b.id));
+      if (capacity.count > 0) tx.set(capacity.ref, { date: data.date, slot: data.slot, count: capacity.count - 1, bookingId: b.id });
+    });
+    toast("Appointment cancelled");
   } catch (x) { toast("Couldn't cancel: " + x.message); }
 });
 route();
